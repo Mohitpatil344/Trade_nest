@@ -1,32 +1,39 @@
 import React, { useState } from 'react';
-import { Stack, Form, Button, Container, Card } from 'react-bootstrap'; // Import Bootstrap components
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { Stack, Form, Button, Container, Card } from 'react-bootstrap'; 
+import { useNavigate } from 'react-router-dom'; 
 import axios from 'axios';
-
-
 
 function AddProduct() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [error, setError] = useState(null); // For handling errors
+  const [success, setSuccess] = useState(null); // For success messages
+  const navigate = useNavigate();
 
-  const handleApi =() => {
+  const handleApi = async () => {
     const formData = new FormData();
-    formData.append('description',description) 
-    formData.append('price',price) 
-    formData.append('image',image) 
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('image', image);
 
-    const url ='http://localhost:5000/add-product';
+    const url = 'http://localhost:5000/add-product';
 
-    axios.post(url, formData)
-    .then((res)=>{
-       console.log(res) 
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-  }
+    try {
+      const res = await axios.post(url, formData);
+      console.log(res);
+      setSuccess('Product added successfully!');
+      setError(null); // Clear any previous errors
+      // Redirect to the home page or another page after a successful API call
+      setTimeout(() => {
+        navigate('/');
+      }, 2000); // Redirect after 2 seconds for user feedback
+    } catch (err) {
+      console.error(err);
+      setError('Error adding product. Please try again.');
+      setSuccess(null); // Clear success message if there's an error
+    }
+  };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
@@ -34,10 +41,7 @@ function AddProduct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleApi(); // Call handleApi to send data to the server
-
-    // Redirect to the home page or another page
-    navigate('/');
+    handleApi();
   };
 
   return (
@@ -45,6 +49,8 @@ function AddProduct() {
       <Card>
         <Card.Body>
           <Card.Title>Add New Product</Card.Title>
+          {error && <p className="text-danger">{error}</p>} {/* Show error messages */}
+          {success && <p className="text-success">{success}</p>} {/* Show success messages */}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="productDescription">
               <Form.Label>Description</Form.Label>
@@ -65,6 +71,7 @@ function AddProduct() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
+                min="0" // Ensure price is not negative
               />
             </Form.Group>
 
@@ -73,16 +80,12 @@ function AddProduct() {
               <Form.Control
                 type="file"
                 accept="image/*"
-                // onChange={(e)=>{
-                //   console.log(e.target.files)
-                // }}
                 onChange={handleImageChange}
-
+                required
               />
             </Form.Group>
 
-            {/* <Button onClick={handleApi} variant="primary" type="submit" > */}
-            <Button variant="primary" type="submit" >
+            <Button variant="primary" type="submit">
               Add Product
             </Button>
           </Form>

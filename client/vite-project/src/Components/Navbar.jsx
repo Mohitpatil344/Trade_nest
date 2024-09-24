@@ -23,6 +23,13 @@ const NavBar = () => {
           </Link>
         </h2>
       </div>
+      {user && (
+        <div className="chat">
+          <Link to="/chat" className="brand-link">
+            Chat
+          </Link>
+        </div>
+      )}
 
       {user && (
         <div className="welcome-text-container">
