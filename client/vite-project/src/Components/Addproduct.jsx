@@ -3,6 +3,8 @@ import { Stack, Form, Button, Container, Card } from 'react-bootstrap'; // Impor
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import axios from 'axios';
 
+
+
 function AddProduct() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
