@@ -6,10 +6,10 @@
     justify-content: space-between;
     padding: 20px;
     box-sizing: border-box; /* Ensures padding is included in the width calculations */
-}
-
-/* Styling for individual product cards */
-.product-card {
+  }
+  
+  /* Styling for individual product cards */
+  .product-card {
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 16px;
@@ -22,39 +22,66 @@
     text-align: center;
     transition: transform 0.3s ease;
     box-sizing: border-box; /* Include padding in width calculations */
-}
-
-.product-card:hover {
+  }
+  
+  .product-card:hover {
     transform: scale(1.05);
-}
-
-/* Styling for the product image */
-/* Styling for the product image */
-.product-image {
-    width: 100%;
-    height: 200px; /* Set a fixed height for consistency */
-    object-fit: cover; /* Ensures the image covers the area without distortion */
+  }
+  
+  /* Styling for the product image */
+  .product-image {
+    max-width: 100%;
     border-radius: 8px;
     margin-bottom: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.product-image:hover {
+  }
+  
+  .product-image:hover {
     transform: scale(1.1);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     background: #f1f3f5;
-}
-
-/* Styling for the product description */
-.product-description {
+  }
+  
+  /* Styling for the product description */
+  .product-description {
     margin: 10px 0;
     font-size: 16px;
     color: #333;
-}
-
-/* Styling for the product price */
-.product-price {
+  }
+  
+  /* Styling for the product price */
+  .product-price {
     font-size: 18px;
     font-weight: bold;
     color: #2ecc71;
-}
+  }
+  
+  /* Blurred background when product is selected */
+  .blurred {
+    filter: blur(5px); /* Adjust the blur intensity */
+    pointer-events: none; /* Prevent interaction with background while blurred */
+  }
+  
+  /* Full-screen overlay when product is clicked */
+  .blur-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* High z-index to ensure it overlays everything */
+  }
+  
+  /* Centered ProductViewCard */
+  .product-view-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    z-index: 1001; /* Ensure it's above the blur-background */
+  }
+  
