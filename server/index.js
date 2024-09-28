@@ -27,6 +27,8 @@
   const bodyparser = require('body-parser')
   app.use('/uploads',express.static(path.join(__dirname,'uploads')));
 
+  //prodcut model  
+
   const Product = mongoose.model('Product', {
     description: String,
     price: String,
