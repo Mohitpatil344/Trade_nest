@@ -1,17 +1,24 @@
-  const express = require("express");
-  const cors = require("cors");
-  const path = require('path');
-  const mongoose = require("mongoose");
-  require("dotenv").config();
-  const multer = require('multer');
-  const userRoute = require("./Routes/userRoute");
+const express = require("express");
+const cors = require("cors");
+const path = require('path');
+const mongoose = require("mongoose");
+require("dotenv").config();
+const multer = require('multer');
+const userRoute = require("./Routes/userRoute");
+const chatRoute = require("./Routes/chatRoutes");
+const messageRoute = require("./Routes/messageRoutes");
 
-  const app = express();
-  const port = process.env.PORT || 5000;
-  const uri = process.env.ATLAS_URI;
+const app = express();
+const port = process.env.PORT || 5000;
+const uri = process.env.ATLAS_URI;
 
-  app.use(express.json());
-  app.use(cors());
+// CORS configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from this origin
+}));
+
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -27,84 +34,69 @@
   const bodyparser = require('body-parser')
   app.use('/uploads',express.static(path.join(__dirname,'uploads')));
 
-  //prodcut model  
+const Product = mongoose.model('Product', {
+  description: String,
+  price: String,
+  image: String
+});
 
-  const Product = mongoose.model('Product', {
-    description: String,
-    price: String,
-    image: String
-  });
+// Test route
+app.get("/", (req, res) => {
+  res.send("Welcome to TradeNest");
+});
 
-  app.get("/", (req, res) => {
-    res.send("Welcome to TradeNest");
-  });
+// Add product route
+app.post("/add-product", upload.single('image'), (req, res) => {
+  console.log("Received request to add product", req.body);
+  console.log("Uploaded file:", req.file);
 
-  app.post("/add-product", upload.single('image'), (req, res) => {
-    console.log(req.body);
-    console.log(req.file.path);
+  if (!req.file) {
+    return res.status(400).send({ message: 'No file uploaded' });
+  }
+  
+  const description = req.body.description;
+  const price = req.body.price;
+  const image = req.file.path; // Get the image path from the uploaded file
 
-    if (!req.file) {
-      return res.status(400).send({ message: 'No file uploaded' });
-    }
-    
-    const description = req.body.description;
-    const price = req.body.price;
-    const image = req.file.path; // Get the image path from the uploaded file
+  const product = new Product({ description, price, image });
 
-    const product = new Product({ description, price, image });
-
-    product.save()
-      .then(() => {
-        res.send({ message: 'Product saved successfully' });
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send({ message: 'Server error' });
-      });
-  });
-
-  app.get('/get-product', (req, res) => {
-    Product.find()
-      .then((result) => {
-        console.log(result, "product data");
-        res.send({ message: 'Success', products: result });
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send({ message: 'Server error' });
-      });
-  });
-
-  // app.get('/search-product', (req, res) => {
-  //   console.log(req.query.name, "search query"); // Add this line to check if the query is being received
-  //   const query = req.query.name;
-
-  //   if (!query) {
-  //     return res.status(400).send({ message: 'No search query provided' });
-  //   }
-
-  //   Product.find({ description: { $regex: query, $options: 'i' } })
-  //     .then((result) => {
-  //       console.log(result, "search result");  // Check this console log for the fetched products
-  //       res.send({ message: 'Success', products: result });
-  //     })
-  //     .catch((err) => {
-  //       console.error(err);
-  //       res.status(500).send({ message: 'Server error' });
-  //     });
-  // });
-
-
-  app.use("/api/users", userRoute);
-
-  mongoose
-    .connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+  product.save()
+    .then(() => {
+      res.send({ message: 'Product saved successfully' });
     })
-    .then(() => console.log("MongoDB connection established"))
-    .catch((error) => console.log("MongoDB connection failed", error.message));
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: 'Server error' });
+    });
+});
 
-  app.listen(port, () => {
-    console.log(`Server running on port: ${port}`);
-  });
+// Get products route
+app.get('/get-product', (req, res) => {
+  Product.find()
+    .then((result) => {
+      console.log(result, "product data");
+      res.send({ message: 'Success', products: result });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send({ message: 'Server error' });
+    });
+});
+
+// User routes
+app.use("/api/users", userRoute);
+app.use("/api/chat", chatRoute);
+app.use("/api/messages", messageRoute);
+// MongoDB connection
+mongoose
+  .connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connection established"))
+  .catch((error) => console.log("MongoDB connection failed", error.message));
+
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port: ${port}`);
+});
