@@ -52,21 +52,38 @@ export const AuthContextProvider = ({ children }) => {
     [registerInfo, baseUrl]
   );
   const loginUser = useCallback(async (e) => {
-
-    e.preventDefault()
+    e.preventDefault();
+    
     setisLoginLoading(true);
     setLoginError(null);
-    const response = await postRequest(
-      `${baseUrl}/users/login`,
-      JSON.stringify(loginInfo)
-    );
-    setisLoginLoading(false);
-    if(response.error){
-      return setLoginError(response)
+    
+    try {
+      // Ensure loginInfo is properly structured and serialized
+      const response = await postRequest(
+        `${baseUrl}/users/login`,
+        JSON.stringify(loginInfo), // Convert loginInfo object to a JSON string
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure the correct header is set
+          },
+        }
+      );
+      
+      setisLoginLoading(false);
+      
+      if (response.error) {
+        return setLoginError(response.error);
+      }
+  
+      localStorage.setItem("User", JSON.stringify(response));
+      setUser(response);
+    } catch (error) {
+      setisLoginLoading(false);
+      setLoginError("Something went wrong. Please try again.");
+      console.error("Login error: ", error);
     }
-    localStorage.setItem("User",JSON.stringify(response))
-    setUser(response)
   }, [loginInfo]);
+  
 
 
 
